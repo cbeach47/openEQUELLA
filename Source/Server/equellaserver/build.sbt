@@ -176,7 +176,7 @@ libraryDependencies ++= Seq(
   "org.bouncycastle"       % "bcprov-jdk15on"    % "1.62",
   "org.ccil.cowan.tagsoup" % "tagsoup"           % "1.2.1",
   "org.codehaus.woodstox"  % "stax2-api"         % "3.1.3",
-  "org.codehaus.woodstox"  % "woodstox-core-asl" % "4.2.0",
+  "org.codehaus.woodstox"  % "woodstox-core-asl" % "4.4.1",
   "org.codehaus.xfire"     % "xfire-aegis"       % "1.2.1",
   "org.dspace"             % "cql-java"          % "1.0",
   //  "org.dspace.oclc" % "oclc-srw" % "1.0.20080328",
