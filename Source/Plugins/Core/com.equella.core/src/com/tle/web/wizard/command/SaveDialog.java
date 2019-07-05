@@ -49,6 +49,7 @@ import com.tle.web.sections.standard.dialog.model.DialogModel;
 import com.tle.web.wizard.WebWizardService;
 import com.tle.web.wizard.WizardService;
 import com.tle.web.wizard.WizardState;
+import com.tle.web.wizard.section.DuplicateDataSection;
 import com.tle.web.wizard.section.WizardBodySection;
 import com.tle.web.wizard.section.WizardSectionInfo;
 import com.tle.web.workflow.tasks.ModerationService;
@@ -137,7 +138,7 @@ public class SaveDialog extends EquellaDialog<SaveDialog.SaveDialogModel> {
     complete.setClickHandler(new OverrideHandler(execFunc, "check", ""));
     submit.setClickHandler(new OverrideHandler(execFunc, "submit", message.createGetExpression()));
     publish.setClickHandler(new OverrideHandler(execFunc, "submit", ""));
-    checkDuplication.setClickHandler(events.getNamedHandler("viewDuplicate"));
+    checkDuplication.setClickHandler(new OverrideHandler(execFunc, "checkDuplication", ""));
     submit.setComponentAttribute(ButtonType.class, ButtonType.SAVE);
     publish.setComponentAttribute(ButtonType.class, ButtonType.SAVE);
     super.treeFinished(id, tree);
@@ -212,13 +213,6 @@ public class SaveDialog extends EquellaDialog<SaveDialog.SaveDialogModel> {
   }
 
   @EventHandlerMethod
-  public void viewDuplicate(SectionInfo info) {
-    System.out.println("view dup");
-    wizardBodySection.getTabs(info).get(1).setCurrent(true);
-    closeDialog(info);
-  }
-
-  @EventHandlerMethod
   public void save(SectionInfo info, String type, String message) {
     WizardSectionInfo winfo = info.getAttributeForClass(WizardSectionInfo.class);
     WizardState state = winfo.getWizardState();
@@ -226,6 +220,11 @@ public class SaveDialog extends EquellaDialog<SaveDialog.SaveDialogModel> {
     boolean doSubmit = type.equals("submit");
     boolean doCheck = type.equals("check");
     boolean doViewDuplicate = type.equals("duplicate");
+
+    if (type.equals("checkDuplication")) {
+    	wizardBodySection.goTo(info, DuplicateDataSection.PROP_NAME);
+    	return;
+	}
 
     if (doSubmit || !state.isInDraft() || doCheck) {
       if (!wizardBodySection.isSaveable(info) && wizardBodySection.goToFirstUnfinished(info)) {

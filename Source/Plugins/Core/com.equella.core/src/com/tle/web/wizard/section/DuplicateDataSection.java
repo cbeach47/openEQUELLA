@@ -51,7 +51,7 @@ import javax.inject.Inject;
 
 public class DuplicateDataSection extends WizardSection<DuplicateDataSection.Model>
     implements SectionTabable {
-  private static final String PROP_NAME = "dups"; // $NON-NLS-1$
+  public static final String PROP_NAME = "dups"; // $NON-NLS-1$
 
   @PlugKey("duplicatedatasection.pagename")
   private static Label LABEL_PAGENAME;

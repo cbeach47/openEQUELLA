@@ -416,6 +416,21 @@ public class WizardBodySection extends WizardSection<WizardBodyModel> implements
     return false;
   }
 
+  public void goTo(SectionInfo info, String tabSectionId) {
+  	final WizardBodyModel model = getModel(info);
+  	final List<SectionTab> tabs = getTabs(info);
+	  int current = 0;
+	  for (SectionTab tab : tabs) {
+		  if (tab.getSectionName().equals(tabSectionId)) {
+			  tab.getTabSection().unfinishedTab(info, tab);
+			  model.setCurrentTab(current);
+			  return;
+		  }
+		  current++;
+	  }
+	  throw new RuntimeException("No tab found with ID " + tabSectionId);
+  }
+
   public void setModalDisplay(
       SectionInfo info, SectionId sectionId, boolean showTabs, boolean standardCommands) {
     WizardBodyModel model = getModel(info);
