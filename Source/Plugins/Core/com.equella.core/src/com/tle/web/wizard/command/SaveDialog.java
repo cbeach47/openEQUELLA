@@ -75,6 +75,9 @@ public class SaveDialog extends EquellaDialog<SaveDialog.SaveDialogModel> {
   @PlugKey("command.save.successreceipt")
   private static Label SUCCESS_RECEIPT_LABEL;
 
+  @PlugKey("command.save.checkduplicationmsg")
+  private static Label LABEL_CHECK_DUPLICATION;
+
   @Inject private ModerationService moderationService;
   @Inject private ReceiptService receiptService;
   @Inject private WizardService wizardService;
@@ -106,9 +109,15 @@ public class SaveDialog extends EquellaDialog<SaveDialog.SaveDialogModel> {
   @PlugKey("command.save.submitnoworkflow")
   private Button publish;
 
+  @Component
+  @PlugKey("command.save.checkduplication")
+  private Button checkDuplication;
+
   public SaveDialog() {
     setAjax(true);
   }
+
+  private SectionInfo info;
 
   @Override
   public void treeFinished(String id, SectionTree tree) {
@@ -128,10 +137,9 @@ public class SaveDialog extends EquellaDialog<SaveDialog.SaveDialogModel> {
     complete.setClickHandler(new OverrideHandler(execFunc, "check", ""));
     submit.setClickHandler(new OverrideHandler(execFunc, "submit", message.createGetExpression()));
     publish.setClickHandler(new OverrideHandler(execFunc, "submit", ""));
-
+    checkDuplication.setClickHandler(events.getNamedHandler("viewDuplicate"));
     submit.setComponentAttribute(ButtonType.class, ButtonType.SAVE);
     publish.setComponentAttribute(ButtonType.class, ButtonType.SAVE);
-
     super.treeFinished(id, tree);
   }
 
@@ -147,20 +155,24 @@ public class SaveDialog extends EquellaDialog<SaveDialog.SaveDialogModel> {
 
   @Override
   public SaveDialogModel instantiateDialogModel(@Nullable SectionInfo info) {
+    this.info = info;
     return new SaveDialogModel();
   }
 
   @Override
   protected SectionRenderable getRenderableContents(RenderContext context) {
     final Collection<Button> buttons = Lists.newArrayList();
-    final Label prompt;
+    Label prompt;
 
     final SaveDialogModel model = getModel(context);
-    if (!wizardBodySection.isSaveableApartFromCurrent(context)) {
+    final WizardState state =
+        context.getAttributeForClass(WizardSectionInfo.class).getWizardState();
+    final boolean savable = wizardBodySection.isSaveableApartFromCurrent(context);
+    if (!savable) {
       prompt = LABEL_UNFINISHEDMSG;
       buttons.add(complete);
     } else {
-      WizardState state = context.getAttributeForClass(WizardSectionInfo.class).getWizardState();
+
       if (state.getItemDefinition().getWorkflow() != null) {
         prompt = LABEL_PUBLISHMSG;
         buttons.add(submit);
@@ -170,6 +182,21 @@ public class SaveDialog extends EquellaDialog<SaveDialog.SaveDialogModel> {
         buttons.add(publish);
       }
     }
+
+    if (state.getDuplicateData().size() > 0 && savable) {
+      state
+          .getDuplicateData()
+          .values()
+          .forEach(
+              duplicateData -> {
+                duplicateData
+                    .getItems()
+                    .forEach(itemId -> System.out.println("item received: " + itemId));
+              });
+      prompt = LABEL_CHECK_DUPLICATION;
+      buttons.add(checkDuplication);
+    }
+
     buttons.add(draft);
     buttons.add(cancel);
 
@@ -185,12 +212,20 @@ public class SaveDialog extends EquellaDialog<SaveDialog.SaveDialogModel> {
   }
 
   @EventHandlerMethod
+  public void viewDuplicate(SectionInfo info) {
+    System.out.println("view dup");
+    wizardBodySection.getTabs(info).get(1).setCurrent(true);
+    closeDialog(info);
+  }
+
+  @EventHandlerMethod
   public void save(SectionInfo info, String type, String message) {
     WizardSectionInfo winfo = info.getAttributeForClass(WizardSectionInfo.class);
     WizardState state = winfo.getWizardState();
     WorkflowOperation[] ops = new WorkflowOperation[] {};
     boolean doSubmit = type.equals("submit");
     boolean doCheck = type.equals("check");
+    boolean doViewDuplicate = type.equals("duplicate");
 
     if (doSubmit || !state.isInDraft() || doCheck) {
       if (!wizardBodySection.isSaveable(info) && wizardBodySection.goToFirstUnfinished(info)) {
@@ -198,6 +233,10 @@ public class SaveDialog extends EquellaDialog<SaveDialog.SaveDialogModel> {
       }
     }
     if (doCheck) {
+      return;
+    }
+
+    if (doViewDuplicate) {
       return;
     }
     boolean stayInWizard = !state.isEntryThroughEdit() && !state.isNewItem();
