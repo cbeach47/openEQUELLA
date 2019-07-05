@@ -139,14 +139,13 @@ public class ReportingServiceImpl
   @SuppressWarnings("unchecked")
   private synchronized IReportEngine getReportEngine() {
     try {
-      Level logLevel = LOGGER.isDebugEnabled() ? Level.FINE : Level.SEVERE;
+      Level logLevel = Level.FINE;
       if (reportEngine == null) {
         LOGGER.info("Loading Birt engine");
         EngineConfig engineConfig = new EngineConfig();
 
-        if (configService.isDebuggingMode()) {
-          engineConfig.setOSGiConfig(ImmutableMap.of("osgi.dev", "true"));
-        }
+        engineConfig.setOSGiConfig(ImmutableMap.of("osgi.dev", "true"));
+
         URL resource = pluginService.getClassLoader("org.eclipse.birt.osgi").getResource("birt/");
         String birtHome = IoUtil.url2file(resource).getAbsolutePath();
         engineConfig.setBIRTHome(birtHome);
