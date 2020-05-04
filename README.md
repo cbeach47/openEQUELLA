@@ -1,12 +1,13 @@
 # openEQUELLA
 
 [![Travis build](https://travis-ci.com/openequella/openEQUELLA.svg?branch=develop)](https://travis-ci.com/openequella/openEQUELLA)
+[![openEQUELLA CI](https://github.com/openequella/openEQUELLA/workflows/openEQUELLA%20CI/badge.svg?branch=develop)](https://github.com/openequella/openEQUELLA/actions?query=workflow%3A%22openEQUELLA+CI%22+branch%3Adevelop)
 
 openEQUELLA is a digital repository that provides a single platform to house your teaching and
 learning, research, media, and library content.
 
 Builds for each openEQUELLA Release can be found on the [Releases
-page](https://github.com/equella/Equella/releases "EQUELLA Releases"). The latest stable versions
+page](https://github.com/openequella/openEQUELLA/releases "EQUELLA Releases"). The latest stable versions
 (with their changelogs) can also be retrieved from the version server at
 <https://version.openequella.net/>.
 
@@ -19,7 +20,7 @@ The project's homepage and documentation can be found at <https://openequella.gi
 If you would like to contribute to openEQUELLA please review the [Contributor
 Guidelines](CONTRIBUTING.md) - which also include details of how to get in touch. We welcome pull
 requests and issue reports. And if you'd like to assist with documentation, please head on over to
-the documentation repository at <https://github.com/equella/equella.github.io>.
+the documentation repository at <https://github.com/openequella/openEQUELLA.github.io>.
 
 Below you'll find further information for developers wishing to work with the source code.
 
@@ -62,7 +63,8 @@ In ubuntu:
 
 <https://nodejs.org/>
 
-As of the time of writing the build was tested Node v8.11.3 and NPM v5.6.0.
+As of the time of writing the build was tested Node v12.16.1 and NPM v6.13.4.
+The recommended version of Node is noted in [_.nvmrc_](./.nvmrc), this version can be installed with [nvm](https://github.com/nvm-sh/nvm) using `nvm install`,
 
 **Download and install Java 8 JDK**
 

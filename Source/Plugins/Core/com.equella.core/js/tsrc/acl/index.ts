@@ -1,9 +1,26 @@
+/*
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0, (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import axios from "axios";
 import { Dispatch } from "redux";
 import { AsyncActionCreators } from "typescript-fsa";
 import {
   ReducerBuilder,
-  reducerWithInitialState
+  reducerWithInitialState,
 } from "typescript-fsa-reducers";
 import { Config } from "../config";
 import { actionCreator, wrapAsyncWorker } from "../util/actionutil";
@@ -19,7 +36,7 @@ function aclService() {
   return {
     actions,
     workers: aclWorkers(actions),
-    reducer: aclReducerBuilder(actions)
+    reducer: aclReducerBuilder(actions),
   };
 }
 
@@ -48,7 +65,7 @@ function aclActions(): AclActions {
       { node: string },
       { node: string; result: string[] },
       void
-    >("LIST_PRIVILEGES_FOR_NODE")
+    >("LIST_PRIVILEGES_FOR_NODE"),
   };
 }
 
@@ -60,17 +77,17 @@ function aclWorkers(actions: AclActions): AclWorkers {
         const { node } = param;
         return axios
           .get<string[]>(`${Config.baseUrl}api/acl/privileges?node=${node}`)
-          .then(res => ({ node, result: res.data }));
+          .then((res) => ({ node, result: res.data }));
       }
-    )
+    ),
   };
 }
 
 function aclReducerBuilder(
   actions: AclActions
 ): ReducerBuilder<PartialAclState, PartialAclState> {
-  let initialState: PartialAclState = {
-    nodes: {}
+  const initialState: PartialAclState = {
+    nodes: {},
   };
 
   return reducerWithInitialState(initialState)
@@ -81,7 +98,7 @@ function aclReducerBuilder(
       const nodes = state.nodes;
       return {
         ...state,
-        nodes: { ...nodes, [success.result.node]: success.result.result }
+        nodes: { ...nodes, [success.result.node]: success.result.result },
       };
     });
 }

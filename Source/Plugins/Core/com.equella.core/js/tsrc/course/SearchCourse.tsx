@@ -1,6 +1,25 @@
+/*
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0, (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { Checkbox, FormControlLabel } from "@material-ui/core";
 import * as React from "react";
-import { Dispatch, connect } from "react-redux";
+import { connect, Dispatch } from "react-redux";
+import { Redirect } from "react-router-dom";
+import { sprintf } from "sprintf-js";
 import { searchCourses } from ".";
 import { Course } from "../api";
 import AppBarQuery from "../components/AppBarQuery";
@@ -8,12 +27,10 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import SearchResult from "../components/SearchResult";
 import { courseService } from "../services";
 import { formatSize, languageStrings } from "../util/langstrings";
-import VisibilitySensor = require("react-visibility-sensor");
 import EntityList from "../components/EntityList";
-import { sprintf } from "sprintf-js";
-import { TemplateProps, templateDefaults } from "../mainui/Template";
+import { templateDefaults, TemplateProps } from "../mainui/Template";
 import { routes } from "../mainui/routes";
-import { Link } from "react-router-dom";
+import VisibilitySensor = require("react-visibility-sensor");
 
 interface SearchCourseProps {
   deleteCourse: (uuid: string) => Promise<{ uuid: string }>;
@@ -31,6 +48,7 @@ interface SearchCourseState {
   resumptionToken?: string;
   bottomVisible: boolean;
   courses: Course[];
+  linkClicked: boolean;
   deleteDetails?: {
     uuid: string;
     name: string;
@@ -54,7 +72,8 @@ class SearchCourse extends React.Component<
       includeArchived: false,
       courses: [],
       searching: false,
-      bottomVisible: true
+      bottomVisible: true,
+      linkClicked: false,
     };
   }
 
@@ -70,7 +89,7 @@ class SearchCourse extends React.Component<
       searching,
       query,
       includeArchived,
-      courses
+      courses,
     } = this.state;
     if (resumptionToken && !searching && courses.length < MaxCourses) {
       this.doSearch(query, includeArchived, false);
@@ -84,15 +103,15 @@ class SearchCourse extends React.Component<
     const doReset = resumptionToken == undefined;
     const { bottomVisible } = this.state;
     this.setState({ searching: true });
-    searchCourses(q, includeArchived, 30, resumptionToken).then(sr => {
+    searchCourses(q, includeArchived, 30, resumptionToken).then((sr) => {
       if (sr.resumptionToken && bottomVisible)
         setTimeout(this.maybeKeepSearching, 250);
-      this.setState(prevState => ({
+      this.setState((prevState) => ({
         ...prevState,
         courses: doReset ? sr.results : prevState.courses.concat(sr.results),
         totalAvailable: sr.available,
         resumptionToken: sr.resumptionToken,
-        searching: false
+        searching: false,
       }));
     });
   };
@@ -111,9 +130,9 @@ class SearchCourse extends React.Component<
   };
 
   visiblityCheck = (bottomVisible: boolean) =>
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       ...prevState,
-      bottomVisible: prevState.bottomVisible && bottomVisible
+      bottomVisible: prevState.bottomVisible && bottomVisible,
     }));
 
   componentWillUnmount() {
@@ -132,15 +151,15 @@ class SearchCourse extends React.Component<
   componentDidMount() {
     window.addEventListener("scroll", this.onScroll, false);
     this.doSearch("", false, true);
-    this.props.checkCreate().then(canCreate => this.setState({ canCreate }));
+    this.props.checkCreate().then((canCreate) => this.setState({ canCreate }));
     this.props.updateTemplate(templateDefaults(strings.title));
     this.updateQuery(this.state.query);
   }
 
   updateQuery(query: string) {
-    this.props.updateTemplate(tp => ({
+    this.props.updateTemplate((tp) => ({
       ...tp,
-      titleExtra: <AppBarQuery query={query} onChange={this.handleQuery} />
+      titleExtra: <AppBarQuery query={query} onChange={this.handleQuery} />,
     }));
   }
 
@@ -161,7 +180,7 @@ class SearchCourse extends React.Component<
       const { includeArchived, query } = this.state;
       this.props
         .deleteCourse(uuid)
-        .then(_ => this.doSearch(query, includeArchived, true));
+        .then((_) => this.doSearch(query, includeArchived, true));
     }
   };
 
@@ -171,7 +190,7 @@ class SearchCourse extends React.Component<
       canCreate,
       courses,
       totalAvailable,
-      searching
+      searching,
     } = this.state;
     return (
       <React.Fragment>
@@ -190,12 +209,10 @@ class SearchCourse extends React.Component<
             courses.length == 0 ? 0 : totalAvailable || 0,
             strings.coursesAvailable
           )}
+          createOnClick={() => {
+            this.setState({ linkClicked: canCreate });
+          }}
           progress={searching}
-          create={
-            canCreate
-              ? p => <Link {...p} to={routes.NewCourse.path} />
-              : undefined
-          }
           resultsRight={
             <FormControlLabel
               control={
@@ -209,7 +226,8 @@ class SearchCourse extends React.Component<
             />
           }
         >
-          {courses.map(course => {
+          {this.state.linkClicked && <Redirect to={routes.NewCourse.path} />}
+          {courses.map((course) => {
             let onDelete;
             if (
               course.uuid &&
@@ -220,14 +238,14 @@ class SearchCourse extends React.Component<
               onDelete = () =>
                 this.setState({ confirmOpen: true, deleteDetails });
             }
-            var text = course.code + " - " + course.name;
+            let text = course.code + " - " + course.name;
             if (course.archived) {
               text = text + " (" + strings.archived + ")";
             }
             return (
               <SearchResult
                 key={course.uuid}
-                onClick={_ => {}}
+                onClick={(_) => {}}
                 to={routes.EditCourse.to(course.uuid!)}
                 primaryText={text}
                 secondaryText={course.description}
@@ -253,12 +271,9 @@ function mapDispatchToProps(dispatch: Dispatch<any>) {
     checkCreate: () =>
       workers
         .checkPrivs(dispatch, { privilege: ["CREATE_COURSE_INFO"] })
-        .then(p => p.indexOf("CREATE_COURSE_INFO") != -1)
+        .then((p) => p.indexOf("CREATE_COURSE_INFO") != -1),
   };
 }
 
 // What's with these any's?
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SearchCourse);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchCourse);

@@ -1,3 +1,20 @@
+/*
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0, (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import * as React from "react";
 import {
   Button,
@@ -12,7 +29,7 @@ import {
   createStyles,
   Grid,
   Snackbar,
-  IconButton
+  IconButton,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import ColorPickerComponent from "./ColorPickerComponent";
@@ -23,12 +40,12 @@ import { commonString } from "../util/commonstrings";
 import {
   generateFromError,
   generateNewErrorID,
-  ErrorResponse
+  ErrorResponse,
 } from "../api/errors";
 import {
   templateDefaults,
   TemplateUpdate,
-  templateError
+  templateError,
 } from "../mainui/Template";
 import { IThemeSettings } from ".";
 
@@ -44,29 +61,29 @@ const styles = createStyles({
   card: {
     marginTop: "16px",
     marginBottom: "16px",
-    overflow: "visible"
+    overflow: "visible",
   },
   fileName: {
     marginTop: "16px",
     marginBottom: "16px",
-    marginLeft: "4px"
+    marginLeft: "4px",
   },
   labels: {
-    marginBottom: "4px"
+    marginBottom: "4px",
   },
   input: {
-    display: "none"
+    display: "none",
   },
   cardContent: {
-    marginBottom: "4px"
+    marginBottom: "4px",
   },
   cardBottom: {
-    marginBottom: "16px"
+    marginBottom: "16px",
   },
   button: {
     marginTop: "8px",
-    marginBottom: "8px"
-  }
+    marginBottom: "8px",
+  },
 });
 
 interface ThemePageProps {
@@ -88,7 +105,7 @@ class ThemePage extends React.Component<
     logoToUpload: "",
     fileName: "",
     noFileNotification: false,
-    logoURL: logoURL
+    logoURL: logoURL,
   };
 
   componentDidMount = () => {
@@ -106,7 +123,7 @@ class ThemePage extends React.Component<
         menu: "#ffffff",
         menuIcon: "#000000",
         primaryText: "#000000",
-        secondaryText: "#444444"
+        secondaryText: "#444444",
       },
       () => this.submitTheme()
     );
@@ -121,7 +138,7 @@ class ThemePage extends React.Component<
       menuText: themeSettings.menuItemTextColor,
       menuIcon: themeSettings.menuItemIconColor,
       primaryText: themeSettings.primaryTextColor,
-      secondaryText: themeSettings.menuTextColor
+      secondaryText: themeSettings.menuTextColor,
     });
   };
 
@@ -161,14 +178,14 @@ class ThemePage extends React.Component<
   };
 
   handleImageChange = (e: HTMLInputElement) => {
-    let reader = new FileReader();
+    const reader = new FileReader();
     if (e.files != null) {
-      let file = e.files[0];
+      const file = e.files[0];
       reader.readAsDataURL(file);
       reader.onloadend = () => {
         this.setState({
           logoToUpload: file,
-          fileName: file.name
+          fileName: file.name,
         });
       };
     }
@@ -185,12 +202,12 @@ class ThemePage extends React.Component<
         menuItemTextColor: this.state.menuText,
         primaryTextColor: this.state.primaryText,
         menuTextColor: this.state.secondaryText,
-        fontSize: 14
+        fontSize: 14,
       })
       .then(() => {
         this.reload();
       })
-      .catch(error => {
+      .catch((error) => {
         this.handleError(error);
       });
   };
@@ -201,7 +218,7 @@ class ThemePage extends React.Component<
       .then(() => {
         this.reload();
       })
-      .catch(error => {
+      .catch((error) => {
         this.handleError(error);
       });
   };
@@ -213,7 +230,7 @@ class ThemePage extends React.Component<
         .then(() => {
           this.reload();
         })
-        .catch(error => {
+        .catch((error) => {
           this.handleError(error);
         });
     } else {
@@ -275,10 +292,10 @@ class ThemePage extends React.Component<
       <div>
         <CardContent className={classes.cardContent}>
           <FormControl>
-            <Typography variant={"display1"}>
+            <Typography variant={"h4"}>
               {strings.colourschemesettings.title}
             </Typography>
-            <Grid container spacing={16}>
+            <Grid container spacing={2}>
               <Grid item>
                 {this.colorPicker(
                   strings.colourschemesettings.primarycolour,
@@ -356,9 +373,7 @@ class ThemePage extends React.Component<
     return (
       <div>
         <CardContent className={classes.cardContent}>
-          <Typography variant={"display1"}>
-            {strings.logosettings.title}
-          </Typography>
+          <Typography variant={"h4"}>{strings.logosettings.title}</Typography>
           <Typography className={classes.labels} color={"textSecondary"}>
             {strings.logosettings.imagespeclabel}
           </Typography>
@@ -369,7 +384,7 @@ class ThemePage extends React.Component<
               className={classes.input}
               color={"textSecondary"}
               id="contained-button-file"
-              onChange={e => this.handleImageChange(e.target)}
+              onChange={(e) => this.handleImageChange(e.target)}
               type="file"
             />
             <label htmlFor="contained-button-file">
@@ -444,7 +459,7 @@ class ThemePage extends React.Component<
               onClick={this.handleNoFileNotificationClose}
             >
               <CloseIcon />
-            </IconButton>
+            </IconButton>,
           ]}
         />
       </div>

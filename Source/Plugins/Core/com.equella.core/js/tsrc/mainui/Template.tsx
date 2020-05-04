@@ -1,3 +1,20 @@
+/*
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0, (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import * as React from "react";
 import { ErrorResponse } from "../api/errors";
 import { MuiPickersUtilsProvider } from "material-ui-pickers";
@@ -24,7 +41,7 @@ import {
   List,
   ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
 } from "@material-ui/core";
 import luxonUtils from "@date-io/luxon";
 import { makeStyles } from "@material-ui/styles";
@@ -90,7 +107,7 @@ export type TemplateUpdate = (
  * No extra meta tags
  */
 export function templateDefaults(title: string): TemplateUpdate {
-  return tp =>
+  return (tp) =>
     ({
       ...tp,
       title,
@@ -104,14 +121,14 @@ export function templateDefaults(title: string): TemplateUpdate {
       fullscreenMode: undefined,
       menuMode: undefined,
       disableNotifications: undefined,
-      metaTags: undefined
+      metaTags: undefined,
     } as TemplateProps);
 }
 
 export function templateError(errorResponse: ErrorResponse): TemplateUpdate {
-  return tp => ({
+  return (tp) => ({
     ...tp,
-    errorResponse
+    errorResponse,
   });
 }
 
@@ -140,68 +157,68 @@ export const useStyles = makeStyles((theme: Theme) => {
     "@global": {
       a: {
         textDecoration: "none",
-        color: theme.palette.primary.main
-      }
+        color: theme.palette.primary.main,
+      },
     },
     root: {
       width: "100%",
-      zIndex: 1
+      zIndex: 1,
     },
     appFrame: {
-      position: "relative"
+      position: "relative",
     },
     appBar: {
       marginLeft: drawerWidth,
       [desktop]: {
-        width: `calc(100% - ${drawerWidth}px)`
-      }
+        width: `calc(100% - ${drawerWidth}px)`,
+      },
     },
     navIconHide: {
       [desktop]: {
-        display: "none"
-      }
+        display: "none",
+      },
     },
     content: {
       display: "flex",
       flexDirection: "column",
       [desktop]: {
-        marginLeft: drawerWidth
-      }
+        marginLeft: drawerWidth,
+      },
     },
     contentArea: {
       flexGrow: 1,
       flexBasis: 0,
-      minHeight: 0
+      minHeight: 0,
     },
     toolbar: theme.mixins.toolbar,
     tabs: {
-      height: tabHeight
+      height: tabHeight,
     },
     contentMinHeight: {
-      minHeight: "100vh"
+      minHeight: "100vh",
     },
     contentFixedHeight: {
-      height: "100vh"
+      height: "100vh",
     },
     titleArea: {
       flexGrow: 1,
       display: "flex",
       alignItems: "center",
-      overflow: "hidden"
+      overflow: "hidden",
     },
     titlePadding: {
       [desktop]: {
-        marginLeft: theme.spacing.unit * 4
+        marginLeft: theme.spacing(4),
       },
-      marginLeft: theme.spacing.unit
+      marginLeft: theme.spacing(1),
     },
     titleDense: {
-      marginLeft: theme.spacing.unit
+      marginLeft: theme.spacing(1),
     },
     title: {
       overflow: "hidden",
       whiteSpace: "nowrap",
-      textOverflow: "ellipsis"
+      textOverflow: "ellipsis",
     },
     footer: {
       position: "fixed",
@@ -210,30 +227,30 @@ export const useStyles = makeStyles((theme: Theme) => {
       zIndex: 1000,
       width: "100%",
       [desktop]: {
-        width: `calc(100% - ${drawerWidth}px)`
-      }
+        width: `calc(100% - ${drawerWidth}px)`,
+      },
     },
     userMenu: {
-      flexShrink: 0
+      flexShrink: 0,
     },
     logo: {
       textAlign: "center",
-      marginTop: theme.spacing.unit * 2
+      marginTop: theme.spacing(2),
     },
     drawerPaper: {
       [desktop]: {
-        position: "fixed"
+        position: "fixed",
       },
       width: drawerWidth,
       zIndex: 1100,
-      background: menuColors.background
+      background: menuColors.background,
     },
     menuItem: {
-      color: menuColors.text
+      color: menuColors.text,
     },
     menuIcon: {
-      color: menuColors.icon
-    }
+      color: menuColors.icon,
+    },
   };
 });
 
@@ -243,7 +260,7 @@ interface useFullscreenProps {
 }
 
 function useFullscreen({ fullscreenMode, hideAppBar }: useFullscreenProps) {
-  const modeIsFullscreen = (function() {
+  const modeIsFullscreen = (function () {
     switch (fullscreenMode) {
       case "YES":
       case "YES_WITH_TOOLBAR":
@@ -271,7 +288,7 @@ export const Template = React.memo(function Template({
   tabs,
   title,
   titleExtra,
-  metaTags
+  metaTags,
 }: TemplateProps) {
   const [menuAnchorEl, setMenuAnchorEl] = React.useState<HTMLElement>();
   const [navMenuOpen, setNavMenuOpen] = React.useState(false);
@@ -290,7 +307,7 @@ export const Template = React.memo(function Template({
 
   React.useEffect(() => {
     const classList = window.document.getElementsByTagName("html")[0].classList;
-    var remove = "fullscreen-toolbar";
+    let remove = "fullscreen-toolbar";
     switch (fullscreenMode) {
       case "YES":
         classList.add("fullscreen");
@@ -318,7 +335,7 @@ export const Template = React.memo(function Template({
     if (tags) {
       // The meta tags generated on the server side, separated by new line symbols
       const newMetaTags = tags.split("\n");
-      newMetaTags.forEach(newMetaTag => {
+      newMetaTags.forEach((newMetaTag) => {
         head.appendChild(
           document.createRange().createContextualFragment(newMetaTag)
         );
@@ -327,9 +344,9 @@ export const Template = React.memo(function Template({
     } else {
       // While there are no new meta tags to display, also remove old customised meta tags
       const existingMetaTags = document.querySelectorAll("meta");
-      existingMetaTags.forEach(existingMetaTag => {
+      existingMetaTags.forEach((existingMetaTag) => {
         if (
-          googleMetaTags.some(tag => {
+          googleMetaTags.some((tag) => {
             return tag === existingMetaTag.outerHTML;
           })
         ) {
@@ -346,7 +363,7 @@ export const Template = React.memo(function Template({
   ) {
     return (
       <MenuItem
-        component={p =>
+        component={(p) =>
           serverSide ? (
             <a {...p} href={link as string} />
           ) : (
@@ -385,16 +402,16 @@ export const Template = React.memo(function Template({
   function navItem(item: MI, ind: number) {
     return (
       <ListItem
-        component={p => {
+        component={(p) => {
           const props = {
             ...p,
             target: item.newWindow ? "_blank" : undefined,
-            onClick: () => setNavMenuOpen(false)
+            onClick: () => setNavMenuOpen(false),
           };
           return item.route ? (
             <Link {...props} to={item.route} />
           ) : (
-            <a {...props} href={item.href!} />
+            <a {...props} href={item.href} />
           );
         }}
         key={ind}
@@ -497,7 +514,7 @@ export const Template = React.memo(function Template({
             <Tooltip title={strings.menu.title}>
               <IconButton
                 aria-label={strings.menu.title}
-                onClick={e => setMenuAnchorEl(e.currentTarget)}
+                onClick={(e) => setMenuAnchorEl(e.currentTarget)}
               >
                 <AccountIcon />
               </IconButton>
@@ -505,7 +522,7 @@ export const Template = React.memo(function Template({
             <Menu
               anchorEl={menuAnchorEl}
               open={Boolean(menuAnchorEl)}
-              onClose={_ => setMenuAnchorEl(undefined)}
+              onClose={(_) => setMenuAnchorEl(undefined)}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
               transformOrigin={{ vertical: "top", horizontal: "right" }}
             >
@@ -528,7 +545,7 @@ export const Template = React.memo(function Template({
           {hasMenu && (
             <IconButton
               className={classes.navIconHide}
-              onClick={_ => setNavMenuOpen(!navMenuOpen)}
+              onClick={(_) => setNavMenuOpen(!navMenuOpen)}
             >
               <MenuIcon />
             </IconButton>
@@ -543,7 +560,7 @@ export const Template = React.memo(function Template({
           variant="temporary"
           anchor="left"
           open={navMenuOpen}
-          onClose={_ => setNavMenuOpen(false)}
+          onClose={(_) => setNavMenuOpen(false)}
         >
           {menuContent}
         </Drawer>

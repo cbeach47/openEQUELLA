@@ -1,10 +1,27 @@
+/*
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0, (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import * as React from "react";
 import {
   Button,
   DialogContent,
   DialogContentText,
   Grid,
-  TextField
+  TextField,
 } from "@material-ui/core";
 import { commonString } from "../util/commonstrings";
 import {
@@ -12,7 +29,7 @@ import {
   getPostLoginNotice,
   NotificationType,
   submitPostLoginNotice,
-  strings
+  strings,
 } from "./LoginNoticeModule";
 import { AxiosError, AxiosResponse } from "axios";
 import SettingsMenuContainer from "../components/SettingsMenuContainer";
@@ -41,7 +58,7 @@ class PostLoginNoticeConfigurator extends React.Component<
     this.state = {
       postNotice: "",
       dbPostNotice: "",
-      clearStaged: false
+      clearStaged: false,
     };
   }
 
@@ -89,7 +106,7 @@ class PostLoginNoticeConfigurator extends React.Component<
       .then((response: AxiosResponse) => {
         this.setState({
           dbPostNotice: response.data,
-          postNotice: response.data
+          postNotice: response.data,
         });
       })
       .catch((error: AxiosError) => {
@@ -144,7 +161,7 @@ class PostLoginNoticeConfigurator extends React.Component<
               fullWidth
               inputProps={{ length: 12 }}
               placeholder={strings.postlogin.description}
-              onChange={e => this.handlePostTextFieldChange(e.target)}
+              onChange={(e) => this.handlePostTextFieldChange(e.target)}
               value={postNotice}
             />
           </Grid>

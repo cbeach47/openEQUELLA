@@ -8,22 +8,25 @@
     "inlineSources": true,
     "allowJs": true,
     "checkJs": true,
+    "skipLibCheck": true,
     "jsx": "react",
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "noErrorTruncation": true,
+    "strict": true,
     "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "baseUrl": ".",
     "paths": {
       "~*": ["./entrybuild/*"]
     }
   },
-  "include": ["tsrc/**/*", "__test__/**/*.ts"],
+  "include": [
+    "tsrc/**/*",
+    "__test__/**/*",
+    "__stories__/**/*",
+    "__mocks__/**/*"
+  ],
   "exclude": [
     "node_modules",
     "build",

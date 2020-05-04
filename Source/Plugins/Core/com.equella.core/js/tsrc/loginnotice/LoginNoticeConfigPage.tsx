@@ -1,3 +1,20 @@
+/*
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0, (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import * as React from "react";
 import { AxiosError } from "axios";
 import MessageInfo from "../components/MessageInfo";
@@ -10,7 +27,7 @@ import {
   Tabs,
   Theme,
   withStyles,
-  WithStyles
+  WithStyles,
 } from "@material-ui/core";
 import Tab from "@material-ui/core/Tab";
 import { NotificationType, strings } from "./LoginNoticeModule";
@@ -18,7 +35,7 @@ import { commonString } from "../util/commonstrings";
 import {
   templateDefaults,
   templateError,
-  TemplateUpdateProps
+  TemplateUpdateProps,
 } from "../mainui/Template";
 import { routes } from "../mainui/routes";
 
@@ -38,10 +55,10 @@ interface LoginNoticeConfigPageState {
 const styles = (theme: Theme) =>
   createStyles({
     floatingButton: {
-      right: theme.spacing.unit * 2,
-      bottom: theme.spacing.unit * 2,
-      position: "fixed"
-    }
+      right: theme.spacing(2),
+      bottom: theme.spacing(2),
+      position: "fixed",
+    },
   });
 
 class LoginNoticeConfigPage extends React.Component<
@@ -69,12 +86,12 @@ class LoginNoticeConfigPage extends React.Component<
     notifications: NotificationType.Save,
     notificationOpen: false,
     selectedTab: 0,
-    preventNav: false
+    preventNav: false,
   };
 
   componentDidMount() {
     const { classes, updateTemplate } = this.props;
-    updateTemplate(tp => ({
+    updateTemplate((tp) => ({
       ...templateDefaults(strings.title)(tp),
       backRoute: routes.Settings.to,
       fixedViewPort: true,
@@ -89,7 +106,7 @@ class LoginNoticeConfigPage extends React.Component<
           {commonString.action.save}
         </Button>
       ),
-      tabs: this.tabs()
+      tabs: this.tabs(),
     }));
   }
 
@@ -117,7 +134,7 @@ class LoginNoticeConfigPage extends React.Component<
 
   handleChangeTab = (event: React.ChangeEvent<{}>, selectedTab: number) => {
     this.setState({ selectedTab }, () =>
-      this.props.updateTemplate(tp => ({ ...tp, tabs: this.tabs() }))
+      this.props.updateTemplate((tp) => ({ ...tp, tabs: this.tabs() }))
     );
   };
 

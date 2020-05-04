@@ -1,10 +1,27 @@
+/*
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0, (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import * as React from "react";
 import Downshift, { GetItemPropsOptions } from "downshift";
 import {
   withStyles,
   Theme,
   createStyles,
-  WithStyles
+  WithStyles,
 } from "@material-ui/core/styles";
 import { Course, PagingResults } from "../api";
 import { TextField, MenuItem, Paper } from "@material-ui/core";
@@ -14,24 +31,24 @@ import { TextFieldProps } from "@material-ui/core/TextField";
 const styles = (theme: Theme) =>
   createStyles({
     container: {
-      position: "relative"
+      position: "relative",
     },
     paper: {
       position: "absolute",
       zIndex: 1,
-      marginTop: theme.spacing.unit,
+      marginTop: theme.spacing(1),
       left: 0,
-      right: 0
+      right: 0,
     },
     chip: {
-      margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`
+      margin: `${theme.spacing(0.5)}px ${theme.spacing(0.25)}px`,
     },
     inputRoot: {
-      flexWrap: "wrap"
+      flexWrap: "wrap",
     },
     divider: {
-      height: theme.spacing.unit * 2
-    }
+      height: theme.spacing(2),
+    },
   });
 
 interface CourseItemProps {
@@ -55,9 +72,12 @@ class CourseItems extends React.Component<CourseItemProps, CourseItemState> {
   }
   loadCourses = () => {
     const { query, maxResults } = this.props;
-    searchCourses(query, false, maxResults).then(
-      (value: PagingResults<Course>) =>
-        this.setState({ courses: value.results })
+    searchCourses(
+      query,
+      false,
+      maxResults
+    ).then((value: PagingResults<Course>) =>
+      this.setState({ courses: value.results })
     );
   };
 
@@ -75,7 +95,7 @@ class CourseItems extends React.Component<CourseItemProps, CourseItemState> {
     const { courses } = this.state;
     const { getItemProps } = this.props;
     return courses.map((course: Course) => {
-      let itemProps = getItemProps({ item: course });
+      const itemProps = getItemProps({ item: course });
       return (
         <MenuItem {...itemProps} key={course.name} component="div">
           {courseToString(course)}
@@ -106,7 +126,7 @@ class CourseSelect extends React.Component<
     super(props);
     this.state = {
       suggestions: [],
-      inputValue: props.course ? props.course.name : ""
+      inputValue: props.course ? props.course.name : "",
     };
   }
 
@@ -114,8 +134,8 @@ class CourseSelect extends React.Component<
     this.setState({ inputValue: courseToString(selectedItem) });
     this.props.onCourseSelect(selectedItem);
   };
-  handleInputChange = (event: any) => {
-    let inputValue = event.target.value;
+  handleInputChange = (event: React.FormEvent<HTMLInputElement>) => {
+    const inputValue = event.currentTarget.value;
     this.setState({ inputValue });
     this.props.onCourseSelect(null);
   };
@@ -136,7 +156,7 @@ class CourseSelect extends React.Component<
           highlightedIndex,
           inputValue,
           isOpen,
-          selectedItem
+          selectedItem,
         }) => (
           <div className={classes.container}>
             <TextField
@@ -145,7 +165,7 @@ class CourseSelect extends React.Component<
               placeholder={"Search on name and code..."}
               InputProps={...getInputProps({
                 onChange: this.handleInputChange,
-                onFocus: e => e.target.select()
+                onFocus: (e) => e.target.select(),
               })}
             />
             {isOpen && inputValue ? (

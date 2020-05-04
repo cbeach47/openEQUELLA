@@ -1,3 +1,20 @@
+/*
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0, (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import * as React from "react";
 import { ErrorResponse, fromAxiosResponse } from "../api/errors";
 import Axios from "axios";
@@ -8,6 +25,7 @@ declare global {
   interface Window {
     _trigger: any;
     eval: any;
+    EQ: { [index: string]: any };
   }
   const _trigger: any;
 }
@@ -25,12 +43,12 @@ interface StateData {
   [key: string]: string[];
 }
 
-type FormUpdate = {
+interface FormUpdate {
   state: StateData;
   partial: boolean;
-};
+}
 
-type LegacyContent = {
+interface LegacyContent {
   html: { [key: string]: string };
   state: StateData;
   css?: string[];
@@ -44,7 +62,7 @@ type LegacyContent = {
   hideAppBar: boolean;
   preventUnload: boolean;
   userUpdated: boolean;
-};
+}
 
 export interface PageContent {
   contentId: string;
@@ -90,7 +108,7 @@ export function submitRequest(
   return Axios.post<SubmitResponse>(
     "api/content/submit" + encodeURI(path),
     vals
-  ).then(res => res.data);
+  ).then((res) => res.data);
 }
 
 export const LegacyContent = React.memo(function LegacyContent({
@@ -101,20 +119,19 @@ export const LegacyContent = React.memo(function LegacyContent({
   redirected,
   render,
   search,
-  userUpdated
+  userUpdated,
 }: LegacyContentProps) {
   const [content, setContent] = React.useState<PageContent>();
-  const baseUrl = (document.getElementsByTagName("base")[0] as HTMLBaseElement)
-    .href;
+  const baseUrl = document.getElementsByTagName("base")[0].href;
 
   function toRelativeUrl(url: string) {
-    let relUrl =
+    const relUrl =
       url.indexOf(baseUrl) == 0 ? url.substring(baseUrl.length) : url;
     return relUrl.indexOf("/") == 0 ? relUrl : "/" + relUrl;
   }
 
   function updatePageContent(content: LegacyContent, scrollTop: boolean) {
-    updateIncludes(content.js, content.css).then(extraCss => {
+    updateIncludes(content.js, content.css).then((extraCss) => {
       const pageContent = {
         ...content,
         contentId: v4(),
@@ -123,7 +140,7 @@ export const LegacyContent = React.memo(function LegacyContent({
           if (scrollTop) {
             document.documentElement.scrollTop = 0;
           }
-        }
+        },
       } as PageContent;
       if (content.userUpdated) {
         userUpdated();
@@ -140,7 +157,7 @@ export const LegacyContent = React.memo(function LegacyContent({
     callback?: (response: SubmitResponse) => void
   ) {
     submitRequest(toRelativeUrl(formAction || pathname), submitValues)
-      .then(content => {
+      .then((content) => {
         if (callback) {
           callback(content);
         } else if (isPageContent(content)) {
@@ -154,13 +171,13 @@ export const LegacyContent = React.memo(function LegacyContent({
           redirected({ href: content.href, external: true });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         onError({ error: fromAxiosResponse(error.response), fullScreen });
       });
   }
 
   function stdSubmit(validate: boolean) {
-    return function(command: string) {
+    return function (command: string) {
       if (window._trigger) {
         _trigger("presubmit");
         if (validate) {
@@ -200,30 +217,30 @@ export const LegacyContent = React.memo(function LegacyContent({
         includes: { js: string[]; css?: string[]; script: string },
         cb: () => void
       ) {
-        updateIncludes(includes.js, includes.css).then(_ => {
+        updateIncludes(includes.js, includes.css).then((_) => {
           window.eval(includes.script);
           cb();
         });
       },
-      updateForm: function(formUpdate: FormUpdate) {
-        setContent(content => {
+      updateForm: function (formUpdate: FormUpdate) {
+        setContent((content) => {
           if (content) {
-            let newState = formUpdate.partial
+            const newState = formUpdate.partial
               ? { ...content.state, ...formUpdate.state }
               : formUpdate.state;
             return { ...content, state: newState };
           } else return undefined;
         });
-      }
+      },
     };
   }, [pathname]);
 
   React.useEffect(() => {
     if (enabled) {
-      let params = new URLSearchParams(search);
-      let urlValues = {};
+      const params = new URLSearchParams(search);
+      const urlValues: { [index: string]: string[] } = {};
       params.forEach((val, key) => {
-        let exVal = urlValues[key];
+        const exVal = urlValues[key];
         if (exVal) exVal.push(val);
         else urlValues[key] = [val];
       });
@@ -246,7 +263,7 @@ async function updateIncludes(
   js: string[],
   css?: string[]
 ): Promise<{ [url: string]: HTMLLinkElement }> {
-  let extraCss = await updateStylesheets(css);
+  const extraCss = await updateStylesheets(css);
   await loadMissingScripts(js);
   return extraCss;
 }
@@ -261,40 +278,41 @@ function updateStylesheets(
   const insertPoint = doc.getElementById("_dynamicInsert")!;
   const head = doc.getElementsByTagName("head")[0];
   let current = insertPoint.previousElementSibling;
-  const existingSheets = {};
+  const existingSheets: { [index: string]: HTMLLinkElement } = {};
 
-  while (current != null && current.tagName == "LINK") {
-    existingSheets[(current as HTMLLinkElement).href] = current;
+  while (
+    current != null &&
+    current.tagName == "LINK" &&
+    current instanceof HTMLLinkElement
+  ) {
+    existingSheets[current.href] = current;
     current = current.previousElementSibling;
   }
-  const cssPromises = sheets.reduce(
-    (lastLink, cssUrl) => {
-      if (existingSheets[cssUrl]) {
-        delete existingSheets[cssUrl];
-        return lastLink;
-      } else {
-        const newCss = doc.createElement("link");
-        newCss.rel = "stylesheet";
-        newCss.href = cssUrl;
-        head.insertBefore(newCss, insertPoint);
-        const p = new Promise((resolve, reject) => {
-          newCss.addEventListener("load", resolve, false);
-          newCss.addEventListener(
-            "error",
-            err => {
-              console.error(`Failed to load css: ${newCss.href}`);
-              resolve();
-            },
-            false
-          );
-        });
-        lastLink.push(p);
-        return lastLink;
-      }
-    },
-    [] as Promise<any>[]
-  );
-  return Promise.all(cssPromises).then(_ => existingSheets);
+  const cssPromises = sheets.reduce((lastLink, cssUrl) => {
+    if (existingSheets[cssUrl]) {
+      delete existingSheets[cssUrl];
+      return lastLink;
+    } else {
+      const newCss = doc.createElement("link");
+      newCss.rel = "stylesheet";
+      newCss.href = cssUrl;
+      head.insertBefore(newCss, insertPoint);
+      const p = new Promise((resolve, reject) => {
+        newCss.addEventListener("load", resolve, false);
+        newCss.addEventListener(
+          "error",
+          (err) => {
+            console.error(`Failed to load css: ${newCss.href}`);
+            resolve();
+          },
+          false
+        );
+      });
+      lastLink.push(p);
+      return lastLink;
+    }
+  }, [] as Promise<any>[]);
+  return Promise.all(cssPromises).then((_) => existingSheets);
 }
 
 function deleteElements(elements: { [url: string]: HTMLElement }) {
@@ -310,30 +328,33 @@ function loadMissingScripts(_scripts: string[]) {
     const doc = window.document;
     const head = doc.getElementsByTagName("head")[0];
     const scriptTags = doc.getElementsByTagName("script");
-    const scriptSrcs = {};
+    const scriptSrcs: { [index: string]: boolean } = {};
     for (let i = 0; i < scriptTags.length; i++) {
       const scriptTag = scriptTags[i];
       if (scriptTag.src) {
         scriptSrcs[scriptTag.src] = true;
       }
     }
-    const lastScript = scripts.reduce((lastScript, scriptUrl) => {
-      if (scriptSrcs[scriptUrl]) {
-        return lastScript;
-      } else {
-        let newScript = doc.createElement("script");
-        newScript.src = scriptUrl;
-        newScript.async = false;
-        head.appendChild(newScript);
-        return newScript;
-      }
-    }, null);
+    const lastScript = scripts.reduce(
+      (lastScript: HTMLScriptElement | null, scriptUrl) => {
+        if (scriptSrcs[scriptUrl]) {
+          return lastScript;
+        } else {
+          const newScript = doc.createElement("script");
+          newScript.src = scriptUrl;
+          newScript.async = false;
+          head.appendChild(newScript);
+          return newScript;
+        }
+      },
+      null
+    );
     if (!lastScript) resolve();
     else {
       lastScript.addEventListener("load", resolve, false);
       lastScript.addEventListener(
         "error",
-        err => {
+        () => {
           console.error(`Failed to load script: ${lastScript.src}`);
           resolve();
         },
@@ -348,7 +369,7 @@ function collectParams(
   command: string | null,
   args: string[]
 ) {
-  const vals = {};
+  const vals: { [index: string]: string[] } = {};
   if (command) {
     vals["event__"] = [command];
   }
@@ -362,26 +383,28 @@ function collectParams(
     }
     vals["eventp__" + i] = [outval];
   });
-  form.querySelectorAll("input,textarea").forEach((v: HTMLInputElement) => {
-    if (v.type) {
-      switch (v.type) {
-        case "button":
-          return;
-        case "checkbox":
-        case "radio":
-          if (!v.checked || v.disabled) return;
+  form
+    .querySelectorAll<HTMLInputElement>("input,textarea")
+    .forEach((v: HTMLInputElement) => {
+      if (v.type) {
+        switch (v.type) {
+          case "button":
+            return;
+          case "checkbox":
+          case "radio":
+            if (!v.checked || v.disabled) return;
+        }
       }
-    }
-    let ex = vals[v.name];
-    if (ex) {
-      ex.push(v.value);
-    } else vals[v.name] = [v.value];
-  });
+      const ex = vals[v.name];
+      if (ex) {
+        ex.push(v.value);
+      } else vals[v.name] = [v.value];
+    });
   form.querySelectorAll("select").forEach((v: HTMLSelectElement) => {
     for (let i = 0; i < v.length; i++) {
-      let o = v[i] as HTMLOptionElement;
+      const o = v[i] as HTMLOptionElement;
       if (o.selected) {
-        let ex = vals[v.name];
+        const ex = vals[v.name];
         if (ex) {
           ex.push(o.value);
         } else vals[v.name] = [o.value];

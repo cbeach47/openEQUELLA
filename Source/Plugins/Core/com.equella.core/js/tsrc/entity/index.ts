@@ -1,9 +1,26 @@
+/*
+ * Licensed to The Apereo Foundation under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * The Apereo Foundation licenses this file to you under the Apache License,
+ * Version 2.0, (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import axios from "axios";
 import { Dispatch } from "redux";
 import { Action, ActionCreator, AsyncActionCreators } from "typescript-fsa";
 import {
   ReducerBuilder,
-  reducerWithInitialState
+  reducerWithInitialState,
 } from "typescript-fsa-reducers";
 import { Entity } from "../api/Entity";
 import { Config } from "../config";
@@ -38,7 +55,7 @@ export function extendedEntityService<
   return {
     actions: actions,
     workers: workers,
-    reducer: entityReducerBuilder(baseActions)
+    reducer: entityReducerBuilder(baseActions),
   };
 }
 
@@ -79,7 +96,7 @@ export interface EntityState<E extends Entity> extends PartialEntityState<E> {
 }
 
 function baseValidate<E extends Entity>(entity: E): IDictionary<string> {
-  const validationErrors = {};
+  const validationErrors: IDictionary<string> = {};
   if (!entity.name) {
     validationErrors["name"] = "Name is required";
   }
@@ -154,7 +171,7 @@ function entityCrudActions<E extends Entity>(
     ),
     checkPrivs: actionCreator.async<{ privilege: string[] }, string[], void>(
       "CHECKPRIVS_" + entityType
-    )
+    ),
   };
 }
 
@@ -170,25 +187,25 @@ function entityWorkers<E extends Entity>(
       // FIXME: edit a specific locale:
       const postEntity = Object.assign({}, entity, {
         nameStrings: { en: entity.name },
-        descriptionStrings: { en: entity.description }
+        descriptionStrings: { en: entity.description },
       });
       if (entity.uuid) {
         const url = `${Config.baseUrl}api/${entityLower}/${entity.uuid}`;
         return axios
           .put<{}>(url, postEntity)
-          .then(_ => axios.get<E>(url))
-          .then(res => ({ result: res.data }));
+          .then((_) => axios.get<E>(url))
+          .then((res) => ({ result: res.data }));
       } else {
         return axios
           .post<{}>(`${Config.baseUrl}api/${entityLower}/`, postEntity)
-          .then(res => res.headers["location"])
-          .then(loc => axios.get<E>(loc))
-          .then(res => ({ result: res.data }));
+          .then((res) => res.headers["location"])
+          .then((loc) => axios.get<E>(loc))
+          .then((res) => ({ result: res.data }));
       }
     }
   );
 
-  const validate = function(entity: E): IDictionary<string> {
+  const validate = function (entity: E): IDictionary<string> {
     const errors = baseValidate(entity);
     if (extValidate) {
       extValidate(entity, errors);
@@ -206,7 +223,7 @@ function entityWorkers<E extends Entity>(
         const { uuid } = param;
         return axios
           .get<E>(`${Config.baseUrl}api/${entityLower}/${uuid}`)
-          .then(res => ({ result: res.data }));
+          .then((res) => ({ result: res.data }));
       }
     ),
     delete: wrapAsyncWorker(
@@ -215,7 +232,7 @@ function entityWorkers<E extends Entity>(
         const { uuid } = param;
         return axios
           .delete(`${Config.baseUrl}api/${entityLower}/${uuid}`)
-          .then(res => ({ uuid }));
+          .then((res) => ({ uuid }));
       }
     ),
     validate: wrapAsyncWorker(
@@ -231,18 +248,18 @@ function entityWorkers<E extends Entity>(
         const qs = encodeQuery({ privilege });
         return axios
           .get<string[]>(`${Config.baseUrl}api/acl/privilegecheck${qs}`)
-          .then(res => res.data);
+          .then((res) => res.data);
       }
-    )
+    ),
   };
 }
 
 function entityReducerBuilder<E extends Entity>(
   entityCrudActions: EntityCrudActions<E>
 ): ReducerBuilder<PartialEntityState<E>, PartialEntityState<E>> {
-  let initialEntityState: PartialEntityState<E> = {
+  const initialEntityState: PartialEntityState<E> = {
     query: "",
-    loading: false
+    loading: false,
   };
 
   return reducerWithInitialState(initialEntityState)
@@ -269,7 +286,7 @@ function entityReducerBuilder<E extends Entity>(
     })
     .case(entityCrudActions.validate.done, (state, success) => {
       const editingEntity = Object.assign({}, state.editingEntity, {
-        validationErrors: success.result
+        validationErrors: success.result,
       });
       return { ...state, editingEntity };
     });
