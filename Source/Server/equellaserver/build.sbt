@@ -26,7 +26,8 @@ val jsoupVersion     = "1.13.1"
 val sttpVersion      = "1.7.2"
 val fs2Version       = "2.4.2"
 val jsassVersion     = "5.10.3"
-val springVersion    = "3.2.18.RELEASE"
+val springVersion    = "5.2.8.RELEASE"
+val guiceVersion     = "3.0"
 
 libraryDependencies ++= Seq(
   "io.circe" %% "circe-core",
@@ -62,9 +63,9 @@ libraryDependencies ++= Seq(
   "com.google.code.gson"         % "gson"                        % "2.8.6",
   "com.google.gdata"             % "core"                        % "1.47.1",
   "com.google.guava"             % "guava"                       % "18.0",
-  "com.google.inject"            % "guice"                       % "3.0",
-  "com.google.inject.extensions" % "guice-assistedinject"        % "3.0",
-  "com.google.inject.extensions" % "guice-spring"                % "3.0",
+  "com.google.inject"            % "guice"                       % guiceVersion,
+  "com.google.inject.extensions" % "guice-assistedinject"        % guiceVersion,
+  "com.google.inject.extensions" % "guice-spring"                % guiceVersion,
   "com.ibm.icu"                  % "icu4j"                       % "4.8.2",
   sqlServerDep excludeAll (
     // Conflicts with RESTeasy jakarta.xml.bind-api
@@ -308,6 +309,7 @@ assemblyMergeStrategy in assembly := {
   case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.first
   case PathList("javax", "activation", _*)                  => MergeStrategy.first
   case PathList("org", "xmlpull", "v1", _*)                 => MergeStrategy.first
+  case PathList("org", "aopalliance", _*)                   => MergeStrategy.first
   case PathList("junit", _*)                                => MergeStrategy.discard
   case PathList("org", "apache", "axis2", "transport", "http", "util", "ComplexPart.class") =>
     MergeStrategy.first
